@@ -1,0 +1,59 @@
+# ========== Python ==========
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ========== PyTorch / ML ==========
+*.pth
+*.ckpt
+*.safetensors
+*.pt
+*.onnx
+*.mlmodel
+
+# ========== 数据集与中间产物 ==========
+data/
+background_patches/
+results/
+checkpoints/
+python_checkpoints/
+
+# ========== 大文件 ==========
+mae_pretrain_vit_small.pth
+*.tar
+*.zip
+*.rar
+
+# ========== 日志 ==========
+*.log
+train_log.txt
+
+# ========== IDE / Tool ==========
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.codebuddy/
+$null
+
+# ========== OS ==========
+.DS_Store
+Thumbs.db
