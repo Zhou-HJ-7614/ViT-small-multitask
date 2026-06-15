@@ -1,6 +1,7 @@
-# Multi-Task ViT-Small (MAE Pretrained) on Pascal VOC 2012
+# Multi-Task ViT-Small on Pascal VOC 2012
 
-基于 **MAE (Masked Autoencoder) 预训练的 ViT-Small** 骨干网络，在 **Pascal VOC 2012** 数据集上微调，实现**四任务联合学习**：
+基于 **ViT-Small** 骨干网络，在 **Pascal VOC 2012** 数据集上微调，实现**四任务联合学习**。
+骨干预训练支持 **timm ImageNet** (默认) 或 **MAE (Masked Autoencoder)**：
 
 | 任务 | 输出 | 说明 |
 |------|------|------|
@@ -33,7 +34,7 @@ pythonProject2/
 ├── data/
 │   └── VOCdevkit/VOC2012/    # Pascal VOC 2012 数据集
 ├── results/                  # 推理结果保存目录
-├── mae_pretrain_vit_small.pth# MAE 预训练权重 (官方, ~60 MB)
+├── mae_pretrain_vit_small.pth# MAE 预训练权重 (官方, ~60 MB, 可选)
 └── train_log.txt             # 训练日志
 ```
 
@@ -50,9 +51,11 @@ pip install -r requirements.txt
 #   scipy>=1.7.0
 ```
 
-## MAE 预训练权重下载
+## 预训练权重说明
 
-### 方法一: 官方 MAE 权重 (推荐)
+默认情况下，模型通过 **timm** 自动加载 **ImageNet-1k 监督预训练权重**（无需手动下载）。如果你想使用 **MAE (Masked Autoencoder)** 自监督预训练权重，可按以下步骤手动下载并指定路径。
+
+### 下载 MAE 权重 (可选)
 
 从 Facebook Research 的 MAE 官方 GitHub 下载:
 
@@ -67,7 +70,7 @@ pip install -r requirements.txt
    └── mae_pretrain_vit_small.pth
    ```
 
-### 方法二: 通过命令行快速下载
+### 通过命令行快速下载 MAE 权重
 
 ```bash
 # 在项目目录下执行:
@@ -77,7 +80,15 @@ curl -o mae_pretrain_vit_small.pth https://dl.fbaipublicfiles.com/mae/pretrain/m
 wget https://dl.fbaipublicfiles.com/mae/pretrain/mae_pretrain_vit_small.pth
 ```
 
-> **注意**: 如果不下载 MAE 权重，模型将使用随机初始化（效果会差很多）。
+```bash
+# 在项目目录下执行:
+curl -o mae_pretrain_vit_small.pth https://dl.fbaipublicfiles.com/mae/pretrain/mae_pretrain_vit_small.pth
+
+# 或使用 wget:
+wget https://dl.fbaipublicfiles.com/mae/pretrain/mae_pretrain_vit_small.pth
+```
+
+> **注意**: 默认情况下模型会自动通过 timm 加载 ImageNet 预训练权重，无需额外下载。若指定了 MAE 权重路径则加载 MAE 权重；若关闭预训练（`--pretrained None`）则随机初始化。
 > **注意**: `checkpoints/` 中的旧权重与 `python_checkpoints/` 中的旧程序**相互匹配**，可以配套使用。当前 v4 代码与旧权重不兼容，请勿混用。
 
 ## 使用方法
@@ -145,7 +156,7 @@ python test.py --eval --checkpoint checkpoints/best_model.pth
 
 ## 模型架构详解 (v4 Query-Based Top-Down)
 
-### 骨干网络: ViT-Small (MAE 预训练)
+### 骨干网络: ViT-Small (timm ImageNet / MAE 预训练)
 
 ```
 Input Image (224×224×3)
@@ -153,7 +164,8 @@ Input Image (224×224×3)
 Patch Embedding (patch_size=16) → 196 patches
         ↓
 ViT Encoder (12 layers, embed_dim=384, heads=6)
-  ├── [MAE 预训练权重] ← ImageNet-1k 自监督学习
+  ├── [timm ImageNet 预训练] ← 默认 (ImageNet-1k 监督学习)
+  └── [MAE 预训练权重] ← 可选 (ImageNet-1k 自监督学习)
   └── Stochastic Depth (drop_path=0.1)
         ↓
 Features: CLS token + Patch tokens (197 × 384)
@@ -298,7 +310,7 @@ LR:          ↑ linear         ↓ cosine → min_lr (1% of peak)
 | 空检测准确率 | ~90-95% |
 | 分割 mIoU | ~65-75% |
 
-> 实际性能取决于: 是否加载 MAE 预训练权重、训练 epochs 数量、超参数调优
+> 实际性能取决于: 是否使用预训练权重、训练 epochs 数量、超参数调优
 
 ## 常见问题
 
@@ -309,7 +321,7 @@ A: 减小 `--batch_size`, 或添加 `--no_amp` 关闭混合精度后进一步降
 A: 确保 AMP 开启 (默认开启), 增加 `num_workers=4` (默认), 或减小 input_size。
 
 ### Q: mIoU 不理想?
-A: 1) 确保 MAE 预训练权重已正确加载; 2) 增加训练轮数到 100-150; 3) 调整分割损失权重 `LOSS_SEG_W`。
+A: 1) 确保预训练权重已正确加载（默认 timm ImageNet）；2) 增加训练轮数到 100-150；3) 调整分割损失权重 `LOSS_SEG_W`。
 
 ### Q: checkpoints/ 中的旧权重能加载吗?
 A: **不能**直接加载到当前 v4 代码。但 `checkpoints/` 中的旧权重与 `python_checkpoints/` 中的旧程序**是匹配的，可以配套使用**。如需使用旧权重，请将 `python_checkpoints/` 中的对应旧程序拷贝到当前目录并运行。

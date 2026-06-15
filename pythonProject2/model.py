@@ -1,13 +1,13 @@
 """
 Multi-Task ViT-Small 模型 (v4 - Query-Based Top-Down)
 =======================================================
-基于 MAE 预训练的 ViT-Small 骨干网络，实现四个任务：
+基于 ViT-Small 骨干网络的多任务模型，实现四个任务：
   1. 单分类 (Single-class): Softmax, 21类 (20物体 + 1空/背景)
   2. 多分类 (Multi-label): Sigmoid, 20类物体
   3. 空分类 (Empty Detection): 二分类，判断图像是否包含任何物体
   4. 分割 (Segmentation): 像素级 21 类语义分割
 
-预训练: MAE (Masked Autoencoder) on ImageNet-1k
+预训练支持: timm ImageNet (默认) 或 MAE (Masked Autoencoder)
 高分辨率支持: 滑动窗口推理 + 多尺度融合
 v4 变更 (Query-Based Top-Down):
   - ClassQueryDecoder: 21 个可学习 Query 通过 Cross-Attention 提取类别特征
@@ -316,7 +316,7 @@ class MultiTaskViTSmall(nn.Module):
     多任务 ViT-Small 模型 v4 (Query-Based Top-Down)
     ================================================
     骨干网络: ViT-Small (embed_dim=384, depth=12, heads=6)
-    预训练:   MAE on ImageNet-1k (官方权重)
+    预训练:   timm ImageNet (默认) 或 MAE (需指定路径)
 
     任务头:
       - query_decoder: Query-Based 分类 (21 类 Cross-Attention 路由)
@@ -344,7 +344,7 @@ class MultiTaskViTSmall(nn.Module):
         """
         Args:
             num_classes:          物体类别数 (Pascal VOC = 20)
-            pretrained_backbone:  MAE 预训练权重路径
+            pretrained_backbone:  预训练权重路径 ('imagenet'=timm ImageNet, 或 MAE 路径)
             drop_path_rate:       DropPath 正则化概率
         """
         super().__init__()

@@ -1,7 +1,8 @@
 """
 多任务 ViT-Small 训练脚本 v3 (Copy-Paste + Query-Based)
 =========================================================
-基于 MAE 预训练的 ViT-Small，在 Pascal VOC 2012 上微调
+基于 ViT-Small 骨干网络，在 Pascal VOC 2012 上微调
+(默认使用 timm ImageNet 预训练权重，也可指定 MAE 权重路径)
 任务: 单分类、多分类、空检测、语义分割
 
 v3 改进:
