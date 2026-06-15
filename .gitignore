@@ -20,31 +20,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# ========== PyTorch / ML ==========
-*.pth
-*.ckpt
-*.safetensors
-*.pt
-*.onnx
-*.mlmodel
-
-# ========== 数据集与中间产物 ==========
-data/
-background_patches/
-results/
-checkpoints/
-python_checkpoints/
-
-# ========== 大文件 ==========
-mae_pretrain_vit_small.pth
-*.tar
-*.zip
-*.rar
-
-# ========== 日志 ==========
-*.log
-train_log.txt
-
 # ========== IDE / Tool ==========
 .vscode/
 .idea/
@@ -57,3 +32,18 @@ $null
 # ========== OS ==========
 .DS_Store
 Thumbs.db
+
+# ========== 数据集（过大，不放入仓库） ==========
+data/
+
+# ========== 大文件（已由 Git LFS 管理，不在此处忽略） ==========
+# *.pth / *.ckpt / *.pt 等权重文件通过 Git LFS 追踪，请勿在此处忽略
+# 如有例外小权重不想走 LFS，可单独处理
+
+# ========== 压缩包 ==========
+*.tar
+*.zip
+*.rar
+
+# ========== 日志（过大时忽略，小日志保留） ==========
+*.log
