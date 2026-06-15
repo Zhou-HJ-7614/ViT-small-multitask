@@ -109,6 +109,23 @@ python train.py --pretrained mae_pretrain_vit_small.pth
 python train.py --batch_size 4 --no_amp
 ```
 
+#### 使用旧版代码 (未包含 future work 的版本)
+
+`checkpoints/` 中的旧权重与 `python_checkpoints/` 中的旧程序**相互匹配**，可直接配套使用。如果你需要使用旧版（v3 之前，未包含 Copy-Paste、Query-Based 等 future work 的代码）复现训练结果或加载旧权重，请执行以下步骤：
+
+```bash
+# 1. 将旧版程序拷贝到当前目录
+cp python_checkpoints/python_checkpoints_0606/*.py .
+
+# 2. 直接运行旧版训练
+python train.py
+
+# 3. 或加载旧权重进行测试/推理
+python test.py --eval --checkpoint checkpoints/best_model.pth
+```
+
+旧版代码的使用方式与当前新版基本一致，但**不支持** Copy-Paste 增强和 Query-Based 架构。旧版对应的训练结果详见下方[预期性能指标](#预期性能指标)。
+
 **默认训练配置:**
 
 | 参数 | 默认值 | 说明 |
@@ -301,14 +318,29 @@ LR:          ↑ linear         ↓ cosine → min_lr (1% of peak)
 
 ## 预期性能指标
 
-> **注意**: 以下为旧版 (v3 之前) 在 Pascal VOC 2012 validation set 上的参考表现。当前 v4 代码尚未经过完整测试，实际性能待验证。
+> **注意**: 以下为旧版 (v3 之前，未包含 future work 的代码) 在 Pascal VOC 2012 validation set 上的 **实际训练结果** (Epoch 100, EMA 验证)。当前 v4 代码尚未经过完整测试，实际性能待验证。
+>
+> 训练配置: 100 epochs, timm ImageNet 预训练, Copy-Paste 未开启 (旧版), 分层学习率 + Cosine Annealing。
 
-| 指标 | 参考值 (v3-) |
-|------|--------------|
-| 单分类准确率 | ~92-96% |
-| 多标签 mF1 | ~80-88% |
-| 空检测准确率 | ~90-95% |
-| 分割 mIoU | ~65-75% |
+| 指标 | 实际值 (Epoch 100, EMA) |
+|------|------------------------|
+| 单分类准确率 | **88.27%** |
+| 空检测准确率 | **100.00%** |
+| 多标签 mF1 | **81.11%** |
+| 分割 mIoU | **76.68%** |
+| Total Loss | **0.9384** |
+
+### Per-class IoU (Epoch 100, EMA)
+
+| 类别 | IoU | 类别 | IoU | 类别 | IoU |
+|------|-----|------|-----|------|-----|
+| background | 94.6% | car | 89.3% | motorbike | 83.5% |
+| aeroplane | 91.3% | cat | 87.2% | person | 85.2% |
+| bicycle | 58.8% | chair | 34.5% | pottedplant | 60.3% |
+| bird | 87.0% | cow | 81.8% | sheep | 81.6% |
+| boat | 75.6% | diningtable | 57.3% | sofa | 55.4% |
+| bottle | 79.4% | dog | 78.8% | train | 83.9% |
+| bus | 89.6% | horse | 86.4% | tvmonitor | 68.8% |
 
 > 实际性能取决于: 是否使用预训练权重、训练 epochs 数量、超参数调优
 
